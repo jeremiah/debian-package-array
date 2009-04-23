@@ -1,0 +1,4 @@
+I am still working on this code so please consider it Alpha.
+---
+
+Parses a debian Packages file and returns the data as arrays.
