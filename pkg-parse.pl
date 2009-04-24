@@ -16,10 +16,11 @@ use Perl6::Slurp;
 # pull into an array discrete package entries
 my @pkgs = slurp $ARGV[0], {irs => qr/\n\n/xms};
 
-# merge packages into an array
+# chop packages into an array of lines for easy grepping
 my @lines = map { split /\n/ } grep /Package:/, @pkgs;
 
-# We only want certain elements
+# We only want certain elements, though this might get separated out
+# and the above two lines put in a base class.
 my @selected  = map { $_ } grep /Package:|Version:|Filename:/, @lines;
 
 my %h;
@@ -44,11 +45,9 @@ foreach my $packet (@selected) {
 }
 
 sub list_version {
-  use YAML;
-  my @new;
   my %versions;
-  my $pac = shift;
-  my $search = $pac ? $pac : " ";
+  my $specificed_package_exp = shift;
+  my $search = $specificed_package_exp ? $specificed_package_exp : " ";
   my @found = map { $_ } grep /$search/, @pkgsary;
   if ($search !~ / /) { # If there is no search term defined
     print "Search for $search:";
@@ -57,8 +56,7 @@ sub list_version {
     my ($package, $version, $file) =  split / /, $line;
     $versions{$package} = [ ] unless exists $versions{$package};
     push @{ $versions{$package} }, $version.="=$file";
-  }
-#  print map { $_->[0] } each %versions;
+  } # print out a list of packages and their corresponding versions
   while (my ($key, $val) = each(%versions)) {
     print "\nPackage $key has version(s)\n", map { join '   ', split /=/ } @$val;
   }
